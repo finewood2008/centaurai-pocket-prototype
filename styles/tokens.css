@@ -1,0 +1,93 @@
+/* ============================================================
+ * tokens.css —— 唯一色值来源
+ *
+ * 配色：**Claude 官方配色方案**（嘉木 2026-08-17 指定，覆盖原计划）。
+ * 原计划是搬 centaurai-pocket 的「金石 · 数据层中性变体」（黛青 #3A5A78）；
+ * 现改为 Anthropic / Claude 品牌色系：暖象牙纸 ＋ Claude 橙。
+ *
+ * 这个选择与自家官网是同一路子 —— www.centaurloop.com 的 legacy 首页用的就是
+ * #FAF7F2 / #C0755A / #A35C43 / #E8B04B 这组暖色，与 Claude 的
+ * ivory ＋ book cloth 家族同源。品牌 logo 取自官网 /loop/assets/centaur-logo.png。
+ *
+ * 规则：本文件之外的任何 CSS/JS 里出现六位十六进制色值都算 bug。
+ * ============================================================ */
+
+:root {
+  /* ---------- 纸与墨（Anthropic ivory / cloud / ink） ---------- */
+  --color-background: #FAF9F5;        /* ivory light */
+  --color-background-raised: #F0EEE6; /* cloud */
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #F5F4ED;
+  --color-surface-highlight: #EBE9DF;
+  --color-border: #DFDBCE;
+  --color-border-soft: #EAE7DC;
+  --color-text: #141413;              /* ink，对纸底 ≈18:1 */
+  --color-text-muted: #5F5E58;        /* 6.17:1 ✓ 正文级 */
+  --color-text-dim: #91918D;          /* 3.03:1 —— 只作 ≤11px 提示，不承载可点文案 */
+
+  /* ---------- Claude 橙：主色 ---------- */
+  /* primary 是填充/描边/进度色；对纸底只有 ~2.9:1，**不承载文字** */
+  --color-primary: #D97757;
+  /* primaryFill 是主按钮的底色：还看得出是 Claude 橙，白字 4.79:1 ✓ 刚好过 AA */
+  --color-primary-fill: #B85536;
+  /* primaryDark 是承载文字的那一档：对纸底 5.56:1、在 primarySoft 上 5.13:1 ✓ */
+  --color-primary-dark: #A6472A;
+  --color-primary-soft: #FBEDE7;
+  --color-primary-border: #F0D5C7;
+
+  /* ---------- kraft 赭 / manilla：提醒与高亮 ---------- */
+  /* gold 同样只做填充与描边（在 goldSoft 上仅 ~2.9:1） */
+  --color-gold: #D4A27F;
+  --color-gold-dark: #8A5A32;         /* 在 goldSoft 上 4.89:1 ✓ 承载文字用这个 */
+  --color-gold-soft: #F5EADA;
+
+  /* 以下四组是 apps/mobile/src/theme/colors.ts 里的别名，照留不删：
+     feature screens 直接消费它们，留着才能和 App 逐行 diff */
+  --color-violet: #8A5A32;
+  --color-violet-soft: #F5EADA;
+  --color-blue: #D97757;
+  --color-blue-soft: #FBEDE7;
+  --color-info: #D97757;
+  --color-info-soft: #FBEDE7;
+  --color-warning: #8A5A32;
+  --color-warning-soft: #F5EADA;
+
+  --color-danger: #B3402C;            /* 在 dangerSoft 上 4.67:1 ✓ */
+  --color-danger-soft: #F8E5DF;
+  --color-success: #4C6B4F;           /* 对纸底 ≈5.4:1 ✓ */
+  --color-success-soft: #E8EEE6;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+
+  /* ---------- 圆角：Claude 的界面比金石松一档 ---------- */
+  /* 仍守「圆角 ≤ 内边距」：Notice 10/13、Button 10/16、card 16/16、metric 16/17 */
+  --radius-small: 6px;
+  --radius-medium: 10px;
+  --radius-large: 16px;
+  --radius-pill: 999px;
+
+  /* ---------- 阴影：只留一口气 ---------- */
+  --shadow-card: 0 2px 4px rgba(20, 20, 19, 0.05);
+
+  /* ---------- 字体：系统回退，不引任何外链 CDN ---------- */
+  /* Claude 的 Styrene / Copernicus 不可分发，用系统栈近似：
+     无衬线走 PingFang SC 系，衬线走 Songti / Noto Serif 系。
+     serif 栈必须以关键字 serif 结尾 —— Songti SC 在 Linux 上会掉成无衬线，需要兜底。 */
+  --font-sans: "PingFang SC", "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei",
+    "Heiti SC", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Songti SC", "Noto Serif CJK SC", "Noto Serif SC", "SimSun", "STSong",
+    Georgia, serif;
+
+  /* ---------- 布局常量（screen.tsx / (tabs)/_layout.tsx） ---------- */
+  --pad-screen-x: 16px;
+  --pad-screen-top: 16px;
+  --pad-screen-bottom: 96px; /* ≈ tabbar 60 + inset 34 */
+  --gap-screen: 16px;
+  --tabbar-h: 60px;
+  --safe-top: 47px;    /* 390×844 = iPhone 12/13/14 */
+  --safe-bottom: 34px;
+
+  /* ---------- 设备尺寸 ---------- */
+  --device-w: 390px;
+  --device-h: 844px;
+}

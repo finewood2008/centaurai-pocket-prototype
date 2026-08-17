@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="assets/centaur-logo.png" />
+    <title>CentaurAI Pocket · 联览</title>
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <style>
+      /* 墙上每一格就是原型本体（iframe），不是会过期的截图 */
+      body {
+        background: var(--color-background-raised);
+        padding: 24px 24px 64px;
+      }
+
+      .wall-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+      }
+
+      .wall-head img {
+        height: 46px;
+        width: auto;
+      }
+
+      .wall-head h1 {
+        font-family: var(--font-serif);
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--color-text);
+      }
+
+      .wall-head p {
+        font-size: 13px;
+        line-height: 20px;
+        color: var(--color-text-muted);
+        max-width: 62ch;
+      }
+
+      .wall-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: auto;
+        font-size: 13px;
+      }
+
+      .wall-controls select {
+        min-height: 36px;
+        padding: 0 10px;
+        border-radius: var(--radius-small);
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        font-size: 13px;
+      }
+
+      .wall-controls label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+        gap: 20px 16px;
+      }
+
+      .cell {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      /* 用 transform 而不是 zoom —— zoom 会改 iframe 内部的 CSS 像素基准，
+         破坏 390 宽度这个前提 */
+      .cell__viewport {
+        width: 100%;
+        aspect-ratio: 390 / 844;
+        overflow: hidden;
+        border-radius: var(--radius-large);
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        box-shadow: var(--shadow-card);
+      }
+
+      .cell iframe {
+        width: 390px;
+        height: 844px;
+        border: 0;
+        transform-origin: top left;
+        display: block;
+      }
+
+      .cell__label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-text);
+      }
+
+      .cell__api {
+        font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+        font-size: 10px;
+        line-height: 15px;
+        color: var(--color-text-muted);
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="wall-head">
+      <img src="assets/centaur-logo.png" alt="半人马AI" />
+      <div>
+        <h1>CentaurAI Pocket · 个人数据治理 APP</h1>
+        <p>
+          一屏看完整个产品。每一格是原型本体，不是截图。切场景会同时改所有格子 ——
+          「盒子连不上」时四个 tab 必须同时表现为连不上。打开「接口视图」，这面墙就是一张
+          「产品 × 接口」全景图。
+        </p>
+      </div>
+      <div class="wall-controls">
+        <select id="scenario" aria-label="切换场景"></select>
+        <label><input type="checkbox" id="api" /> 接口视图</label>
+      </div>
+    </header>
+
+    <div class="grid" id="grid"></div>
+
+    <script src="scripts/tokens.js"></script>
+    <script src="scripts/endpoints.js"></script>
+    <script>
+      (function () {
+        var P = window.Pocket;
+
+        var CELLS = [
+          { label: "今日", hash: "#/today", api: "GET /dashboard · GET /governance/inbox/summary" },
+          { label: "治理 · 单卡", hash: "#/governance", api: "GET /governance/tasks · GET /governance/tasks/next" },
+          { label: "数据 · 我的视角", hash: "#/data", api: "GET /items" },
+          { label: "数据 · Agent 视角", hash: "#/data", query: "view=agent", api: "POST /agent/search-preview（待提供）" },
+          { label: "盒子", hash: "#/box", api: "GET /box/status（待提供）· GET /network/status（待提供）" },
+          { label: "谁能用我的数据", hash: "#/box/access", api: "GET /agent/clients · GET /agent/access-log（待提供）" },
+          { label: "私有网络（占位）", hash: "#/box/network", api: "GET /network/status（待提供）" },
+          { label: "首次配对", hash: "#/onboarding/pair", api: "POST /mobile/pairings → claim" },
+          { label: "全部待办", hash: "#/governance/all", api: "GET /governance/inbox/summary（待提供）" },
+          { label: "编辑后接受", hash: "#/governance/edit/gt-9001", api: "POST /governance/tasks/{id}/apply" },
+          { label: "条目详情", hash: "#/data/item/it-3301", api: "GET /items/{item_id}" },
+          { label: "数据来源", hash: "#/data/sources", api: "GET /sources" },
+          { label: "来源详情", hash: "#/data/sources/src-folder-2", api: "GET /sources/{id} · POST /sync" },
+          { label: "观察器来源", hash: "#/data/sources/src-wechat-1", api: "GET /sources/{id}/observer-status" },
+          { label: "我的设备", hash: "#/box/devices", api: "GET /mobile/devices" },
+          { label: "Agent 凭据", hash: "#/box/access/agent", api: "GET /agent/token · POST /rotate" },
+          { label: "连接配置", hash: "#/box/connection", api: "GET /network/status（待提供）" },
+          { label: "新增来源", hash: "#/data/sources", query: "sheet=add-source", api: "GET /box/status · POST /sources" },
+          { label: "采集", hash: "#/data", query: "sheet=capture", api: "POST /captures" },
+          { label: "基元", hash: "#/kitchen-sink", api: "—" }
+        ];
+
+        var sel = document.getElementById("scenario");
+        sel.innerHTML = P.SCENARIOS.map(function (s) {
+          return '<option value="' + s.id + '">' + s.label + "</option>";
+        }).join("");
+
+        var grid = document.getElementById("grid");
+        grid.innerHTML = CELLS.map(function (c, i) {
+          return (
+            '<div class="cell">' +
+            '<div class="cell__viewport"><iframe data-i="' + i + '" loading="lazy" title="' + c.label + '"></iframe></div>' +
+            '<div class="cell__label">' + c.label + "</div>" +
+            '<div class="cell__api">' + c.api + "</div>" +
+            "</div>"
+          );
+        }).join("");
+
+        function scaleAll() {
+          document.querySelectorAll(".cell__viewport").forEach(function (vp) {
+            var f = vp.querySelector("iframe");
+            f.style.transform = "scale(" + vp.clientWidth / 390 + ")";
+          });
+        }
+
+        function load() {
+          var scenario = sel.value;
+          var api = document.getElementById("api").checked ? "&api=1" : "";
+          document.querySelectorAll("iframe[data-i]").forEach(function (f) {
+            var c = CELLS[Number(f.dataset.i)];
+            var q = ["scenario=" + scenario, "frame=0", "tools=0", c.query].filter(Boolean).join("&");
+            f.src = "index.html" + c.hash + "?" + q + api;
+          });
+          scaleAll();
+        }
+
+        sel.addEventListener("change", load);
+        document.getElementById("api").addEventListener("change", load);
+        window.addEventListener("resize", scaleAll);
+        load();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,403 @@
+/* ============================================================
+ * shell.css —— 设备框、状态栏、tab bar、二级页返回条、sheet 转场
+ *
+ * 内容区 #app 精确 390×844，外框绝不改变它的尺寸。
+ * body[data-frame="0"] 去掉外框全屏铺满 —— 截图永远带 ?frame=0，
+ * 保证像素与真机 390×844 渲染一致，可与 Expo e2e 基线对比。
+ * ============================================================ */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.device {
+  position: relative;
+  width: var(--device-w);
+  height: var(--device-h);
+  border-radius: 44px;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  box-shadow: 0 30px 80px rgba(31, 28, 23, 0.18);
+  padding: 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* 去框模式：外框痕迹全部清零，#app 铺满视口 */
+body[data-frame="0"] .page {
+  padding: 0;
+  min-height: 0;
+  display: block;
+}
+
+body[data-frame="0"] .device {
+  width: 100vw;
+  height: 100vh;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+  overflow: hidden;
+}
+
+/* ---------- 状态栏 ---------- */
+
+.statusbar {
+  flex-shrink: 0;
+  height: var(--safe-top);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 22px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.statusbar__right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.statusbar__bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 10px;
+}
+
+.statusbar__bars i {
+  display: block;
+  width: 3px;
+  background: var(--color-text);
+  border-radius: 1px;
+}
+
+.statusbar__bars i:nth-child(1) { height: 4px; }
+.statusbar__bars i:nth-child(2) { height: 6px; }
+.statusbar__bars i:nth-child(3) { height: 8px; }
+.statusbar__bars i:nth-child(4) { height: 10px; }
+
+.statusbar__battery {
+  width: 22px;
+  height: 11px;
+  border: 1px solid var(--color-text);
+  border-radius: 3px;
+  padding: 1.5px;
+}
+
+.statusbar__battery span {
+  display: block;
+  height: 100%;
+  width: 72%;
+  background: var(--color-text);
+  border-radius: 1px;
+}
+
+/* ---------- 滚动内容区（对齐 screen.tsx 的 content） ---------- */
+
+#stage {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-screen);
+  padding: var(--pad-screen-top) var(--pad-screen-x) var(--pad-screen-bottom);
+  scrollbar-width: none;
+}
+
+#stage::-webkit-scrollbar {
+  display: none;
+}
+
+/* #stage 与 sheet body 都是 flex 容器，直接子元素默认会被压缩去迁就容器高度。
+   带 overflow:hidden 的卡片（例如 .list）被压缩后会**静默裁掉**里面的行，
+   看起来只是列表变短了，没有任何报错。所以子元素一律不许收缩。 */
+#stage > *,
+.sheet__body > * {
+  flex-shrink: 0;
+}
+
+/* ---------- 二级页返回条 ---------- */
+
+.backbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: -4px 0 -4px -8px;
+  padding: 0 8px;
+  color: var(--color-primary-dark);
+  font-size: 14px;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.backbar__chevron {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ---------- tab bar（height 60 + inset 34，对齐 _layout.tsx） ---------- */
+
+.tabbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  height: calc(var(--tabbar-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  display: flex;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.tabbar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: var(--tabbar-h);
+  color: var(--color-text-dim);
+}
+
+.tabbar__item[aria-current="page"] {
+  color: var(--color-primary-dark);
+}
+
+.tabbar__glyph {
+  font-size: 19px;
+  line-height: 21px;
+}
+
+.tabbar__label {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 14px;
+}
+
+.tabbar__badge {
+  position: absolute;
+  transform: translate(14px, -12px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--color-danger);
+  color: var(--color-white);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* home indicator */
+.home-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  width: 134px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--color-text);
+  opacity: 0.28;
+  z-index: 31;
+  pointer-events: none;
+}
+
+/* ---------- sheet / modal：slide_from_bottom ---------- */
+
+#sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+body[data-sheet]:not([data-sheet=""]) #sheet {
+  transform: translateY(0);
+}
+
+#sheet[hidden] {
+  display: none;
+}
+
+.sheet__grabber {
+  flex-shrink: 0;
+  padding: 10px 0 2px;
+  display: flex;
+  justify-content: center;
+}
+
+.sheet__grabber span {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+}
+
+.sheet__head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px 12px;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.sheet__title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.sheet__close {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sheet__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-screen);
+  padding: 16px 16px 32px;
+  scrollbar-width: none;
+}
+
+.sheet__body::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- push 页转场：fade_from_bottom（对齐 _layout.tsx） ---------- */
+
+@keyframes stage-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#stage > * {
+  animation: stage-in 0.16s ease-out both;
+}
+
+/* 窄屏（真手机上打开）自动去框 */
+@media (max-width: 900px) {
+  .page {
+    padding: 0;
+    min-height: 0;
+    display: block;
+  }
+
+  .device {
+    width: 100vw;
+    height: 100vh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+/* ============================================================
+ * 联览墙（#/wall）—— chrome="wall"：整窗铺开，不套手机框
+ * ============================================================ */
+
+body[data-chrome="wall"] .page { display: block; padding: 24px 24px 64px; min-height: 0; }
+body[data-chrome="wall"] .device {
+  width: auto; height: auto; border: 0; border-radius: 0;
+  box-shadow: none; overflow: visible; background: transparent;
+}
+body[data-chrome="wall"] #app { height: auto; overflow: visible; background: transparent; }
+body[data-chrome="wall"] .statusbar,
+body[data-chrome="wall"] .home-indicator { display: none; }
+body[data-chrome="wall"] #stage { overflow: visible; padding: 0; flex: none; }
+
+.wall-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.wall-head__mark { height: 46px; width: auto; }
+.wall-head__title {
+  font-family: var(--font-serif); font-size: 24px; font-weight: 600; color: var(--color-text);
+}
+.wall-head__note {
+  font-size: 13px; line-height: 20px; color: var(--color-text-muted); max-width: 68ch;
+}
+
+.wall-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 22px 16px;
+}
+.wall-cell { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.wall-cell__viewport {
+  position: relative; width: 100%; aspect-ratio: 390 / 844; overflow: hidden;
+  border-radius: var(--radius-large); border: 1px solid var(--color-border);
+  background: var(--color-surface); box-shadow: var(--shadow-card);
+  padding: 0; display: block; text-align: left;
+}
+.wall-cell__viewport { cursor: pointer; }
+.wall-cell__viewport:hover { border-color: var(--color-primary-border); }
+.wall-cell__viewport:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.mini-device {
+  position: absolute; top: 0; left: 0; width: 390px; height: 844px;
+  transform-origin: top left; display: flex; flex-direction: column;
+  background: var(--color-background); pointer-events: none;
+}
+.mini-stage {
+  flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column;
+  gap: var(--gap-screen); padding: var(--pad-screen-top) var(--pad-screen-x) var(--pad-screen-bottom);
+}
+.mini-stage > * { flex-shrink: 0; }
+.mini-sheet {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  background: var(--color-background);
+}
+.mini-stage--sheet { padding-bottom: 32px; }
+
+.mini-tabbar {
+  flex-shrink: 0; height: calc(var(--tabbar-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom); display: flex;
+  background: var(--color-surface); border-top: 1px solid var(--color-border-soft);
+}
+.mini-tabbar__item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px; color: var(--color-text-dim);
+}
+.mini-tabbar__item--on { color: var(--color-primary-dark); }
+.mini-tabbar__glyph { font-size: 19px; line-height: 21px; }
+.mini-tabbar__label { font-size: 11px; font-weight: 600; line-height: 14px; }
+
+.wall-cell__label { font-size: 12px; font-weight: 600; color: var(--color-text); }
+.wall-cell__api {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 10px; line-height: 15px; color: var(--color-text-muted); word-break: break-all;
+}

@@ -1,0 +1,7 @@
+# 截图产物：17MB，capture.mjs 每次重建，不入库。
+# 少量给人看的图放在 docs/screenshots/。
+output/
+
+# 系统垃圾
+.DS_Store
+Thumbs.db

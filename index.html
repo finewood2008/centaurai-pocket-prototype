@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="assets/centaur-logo.png" />
+    <title>CentaurAI Pocket · 高保真原型</title>
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/components.css" />
+    <link rel="stylesheet" href="styles/shell.css" />
+    <link rel="stylesheet" href="styles/devtools.css" />
+  </head>
+  <body data-frame="1" data-tools="1" data-api="0" data-scenario="normal" data-sheet="">
+    <div class="devtools" id="devtools">
+      <span class="devtools__label">场景</span>
+      <select data-scenario-select aria-label="切换 mock 场景"></select>
+      <label class="devtools__toggle">
+        <input type="checkbox" data-api-toggle />
+        接口视图
+      </label>
+      <span class="devtools__hint">状态都在 URL 里，可直接分享</span>
+      <button type="button" class="devtools__link" data-go="/wall">联览 20 屏</button>
+    </div>
+
+    <div class="page">
+      <div class="device">
+        <div id="app">
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="statusbar__right">
+              <span class="statusbar__bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <span class="statusbar__battery" aria-hidden="true"><span></span></span>
+            </span>
+          </div>
+
+          <main id="stage" aria-live="polite"></main>
+
+          <nav class="tabbar" id="tabbar" aria-label="主导航"></nav>
+          <div class="home-indicator" aria-hidden="true"></div>
+
+          <section id="sheet" hidden aria-modal="true" role="dialog"></section>
+          <section id="api-card" hidden aria-modal="true" role="dialog"></section>
+          <div id="toast-slot"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="scripts/tokens.js"></script>
+    <script src="scripts/endpoints.js"></script>
+    <script src="scripts/mock.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/screens/today.js"></script>
+    <script src="scripts/screens/governance.js"></script>
+    <script src="scripts/screens/data.js"></script>
+    <script src="scripts/screens/box.js"></script>
+    <script src="scripts/screens/onboarding.js"></script>
+    <script src="scripts/screens/kitchen-sink.js"></script>
+    <script src="scripts/screens/sheets.js"></script>
+    <script src="scripts/screens/wall.js"></script>
+    <script src="scripts/devtools.js"></script>
+    <script src="scripts/app.js"></script>
+  </body>
+</html>
